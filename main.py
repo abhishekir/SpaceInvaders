@@ -1,12 +1,16 @@
 import pygame
 
+
 # constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 BACKGROUND_COLOR = (192, 192, 192)
 GAME_CAPTION = "Space Invaders"
 GAME_ICON = "media/game_icon.png"
-PLAYER_IMAGE = "media/player.png"
+PLAYER_IMAGE_LOC = "media/player.png"
+PLAYER_IMG = pygame.image.load(PLAYER_IMAGE_LOC)
+PLAYER_X_INIT = (SCREEN_WIDTH / 2) - (PLAYER_IMG.get_width() / 2)  # half on screen x-axis
+PLAYER_Y_INIT = (SCREEN_HEIGHT * .75) + (PLAYER_IMG.get_height() / 2)  # 3/4 down on screen y-axis
 
 def initialize():
     # Initialize pygame
@@ -19,13 +23,12 @@ def initialize():
 
     return screen
 
+
 # Player
-def player():
-    playerImg = pygame.image.load(PLAYER_IMAGE)
-    playerX = (SCREEN_WIDTH / 2) - (playerImg.get_width() / 2) # half on screen x-axis
-    playerY = (SCREEN_HEIGHT * .75) + (playerImg.get_height() / 2) # 3/4 down on screen y-axis
+def player(playerX, playerY):
     # print(playerX, playerY)
-    screen.blit(playerImg, (playerX, playerY))
+    screen.blit(PLAYER_IMG, (playerX, playerY))
+
 
 def main(screen):
     # Game Loop
@@ -36,15 +39,23 @@ def main(screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                # pygame.quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-                    # pygame.quit()
+                if event.key == pygame.K_LEFT:
+                    print("left key down")
+                if event.key == pygame.K_RIGHT:
+                    print("right key down")
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    print("key up")
 
-        player()
+        if not running:
+            pygame.quit()
+        else:
+            player(PLAYER_X_INIT, PLAYER_Y_INIT)
+            pygame.display.update()
 
-        pygame.display.update()
 
 if __name__ == "__main__":
     screen = initialize()
