@@ -14,14 +14,16 @@ PLAYER_IMG = pygame.image.load(PLAYER_IMAGE_LOC)
 PLAYER_IMG_WIDTH = PLAYER_IMG.get_width()
 PLAYER_IMG_HEIGHT = PLAYER_IMG.get_height()
 PLAYER_X_INIT = (SCREEN_WIDTH / 2) - (PLAYER_IMG_WIDTH / 2)  # half on screen x-axis
-PLAYER_Y_INIT = (SCREEN_HEIGHT * .75) + (PLAYER_IMG_HEIGHT / 2)  # 3/4 down on screen y-axis
+PLAYER_Y_INIT = (SCREEN_HEIGHT * .8) + (PLAYER_IMG_HEIGHT / 2)  # 3/4 down on screen y-axis
 PLAYER_VELOCITY = .5 # pixels per tick
 
 ENEMY_IMG_LOC = "media/alien.png"
 ENEMY_IMG = pygame.image.load(ENEMY_IMG_LOC)
 ENEMY_IMG_WIDTH = ENEMY_IMG.get_width()
 ENEMY_IMG_HEIGHT = ENEMY_IMG.get_height()
-ENEMY_VELOCITY = .05 # pixels per tick
+ENEMY_X_VELOCITY = .075 # pixels per tick
+ENEMY_Y_VELOCITY = .05 # pixels per tick
+
 
 def initialize():
     # Initialize pygame
@@ -34,13 +36,31 @@ def initialize():
 
     return screen
 
+
 class Enemy:
     def __init__(self):
         self.x_pos = random.randint(0, SCREEN_WIDTH-ENEMY_IMG_WIDTH)
         self.y_pos = random.randint(0, int(.2 * SCREEN_HEIGHT))
+        self.moving_right = random.choice([True, False])
+
+    def toggle_x(self):
+        self.moving_right = not self.moving_right
 
     def move_enemy(self):
-        new_y = self.y_pos + ENEMY_VELOCITY
+        if (self.moving_right):
+            new_x = self.x_pos + ENEMY_X_VELOCITY
+            if (new_x <= SCREEN_WIDTH - ENEMY_IMG_WIDTH):  # Right bound check
+                self.x_pos = new_x
+            else:
+                self.toggle_x()
+        else:
+            new_x = self.x_pos - ENEMY_X_VELOCITY
+            if (new_x >= 0): # Left bound check
+                self.x_pos = new_x
+            else:
+                self.toggle_x()
+
+        new_y = self.y_pos + ENEMY_Y_VELOCITY
         if (new_y <= SCREEN_HEIGHT - ENEMY_IMG_HEIGHT):
             self.y_pos = new_y
 
@@ -49,7 +69,6 @@ class Enemy:
 
     def draw(enemy):
         screen.blit(ENEMY_IMG, enemy.get_pos())
-
 
 
 class Player:
@@ -106,7 +125,8 @@ def main(screen):
     # Game Loop
     running = True
     player = Player()
-    enemy = Enemy()
+    enemyList = [Enemy()]
+    # enemy = Enemy()
 
     while running:
         screen.fill(BACKGROUND_COLOR)
@@ -118,19 +138,19 @@ def main(screen):
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 if event.key == pygame.K_LEFT:
-                    print("left key down")
+                    # print("left key down")
                     player.toggle_left()
                 if event.key == pygame.K_RIGHT:
-                    print("right key down")
+                    # print("right key down")
                     player.toggle_right()
                 if event.key == pygame.K_UP:
-                    print("up key down")
+                    # print("up key down")
                     player.toggle_up()
                 if event.key == pygame.K_DOWN:
-                    print("down key down")
+                    # print("down key down")
                     player.toggle_down()
             if event.type == pygame.KEYUP:
-                print("key up")
+                # print("key up")
                 if event.key == pygame.K_LEFT:
                     player.toggle_left()
                 if event.key == pygame.K_RIGHT:
@@ -144,8 +164,9 @@ def main(screen):
             player.move_player()
             player.draw()
 
-            enemy.move_enemy()
-            enemy.draw()
+            for enemy in enemyList:
+                enemy.move_enemy()
+                enemy.draw()
 
             pygame.display.update()
         else:
