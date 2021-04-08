@@ -1,5 +1,5 @@
 import pygame
-
+import random
 
 # constants
 SCREEN_WIDTH = 800
@@ -17,6 +17,11 @@ PLAYER_X_INIT = (SCREEN_WIDTH / 2) - (PLAYER_IMG_WIDTH / 2)  # half on screen x-
 PLAYER_Y_INIT = (SCREEN_HEIGHT * .75) + (PLAYER_IMG_HEIGHT / 2)  # 3/4 down on screen y-axis
 PLAYER_VELOCITY = .5 # pixels per tick
 
+ENEMY_IMG_LOC = "media/alien.png"
+ENEMY_IMG = pygame.image.load(ENEMY_IMG_LOC)
+ENEMY_IMG_WIDTH = ENEMY_IMG.get_width()
+ENEMY_IMG_HEIGHT = ENEMY_IMG.get_height()
+ENEMY_VELOCITY = .05 # pixels per tick
 
 def initialize():
     # Initialize pygame
@@ -28,6 +33,23 @@ def initialize():
     pygame.display.set_icon(icon)
 
     return screen
+
+class Enemy:
+    def __init__(self):
+        self.x_pos = random.randint(0, SCREEN_WIDTH-ENEMY_IMG_WIDTH)
+        self.y_pos = random.randint(0, int(.2 * SCREEN_HEIGHT))
+
+    def move_enemy(self):
+        new_y = self.y_pos + ENEMY_VELOCITY
+        if (new_y <= SCREEN_HEIGHT - ENEMY_IMG_HEIGHT):
+            self.y_pos = new_y
+
+    def get_pos(self):
+        return (self.x_pos, self.y_pos)
+
+    def draw(enemy):
+        screen.blit(ENEMY_IMG, enemy.get_pos())
+
 
 
 class Player:
@@ -76,7 +98,7 @@ class Player:
     def get_pos(self):
         return (self.x_pos, self.y_pos)
 
-    def draw_player(player):
+    def draw(player):
         screen.blit(PLAYER_IMG, player.get_pos())
 
 
@@ -84,6 +106,7 @@ def main(screen):
     # Game Loop
     running = True
     player = Player()
+    enemy = Enemy()
 
     while running:
         screen.fill(BACKGROUND_COLOR)
@@ -119,7 +142,11 @@ def main(screen):
 
         if running:
             player.move_player()
-            player.draw_player()
+            player.draw()
+
+            enemy.move_enemy()
+            enemy.draw()
+
             pygame.display.update()
         else:
             pygame.quit()
