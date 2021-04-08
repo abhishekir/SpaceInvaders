@@ -11,8 +11,10 @@ GAME_ICON = "media/game_icon.png"
 
 PLAYER_IMAGE_LOC = "media/player.png"
 PLAYER_IMG = pygame.image.load(PLAYER_IMAGE_LOC)
-PLAYER_X_INIT = (SCREEN_WIDTH / 2) - (PLAYER_IMG.get_width() / 2)  # half on screen x-axis
-PLAYER_Y_INIT = (SCREEN_HEIGHT * .75) + (PLAYER_IMG.get_height() / 2)  # 3/4 down on screen y-axis
+PLAYER_IMG_WIDTH = PLAYER_IMG.get_width()
+PLAYER_IMG_HEIGHT = PLAYER_IMG.get_height()
+PLAYER_X_INIT = (SCREEN_WIDTH / 2) - (PLAYER_IMG_WIDTH / 2)  # half on screen x-axis
+PLAYER_Y_INIT = (SCREEN_HEIGHT * .75) + (PLAYER_IMG_HEIGHT / 2)  # 3/4 down on screen y-axis
 PLAYER_VELOCITY = .5 # pixels per tick
 
 
@@ -40,15 +42,32 @@ class Player:
     def toggle_right(self):
         self.move_direction[1] = not self.move_direction[1]
 
+    def toggle_up(self):
+        self.move_direction[2] = not self.move_direction[2]
+
+    def toggle_down(self):
+        self.move_direction[3] = not self.move_direction[3]
+
     def move_player(self):
-        if (self.move_direction[0]):
-            self.x_pos -= (PLAYER_VELOCITY)
-        if (self.move_direction[1]):
-            self.x_pos += PLAYER_VELOCITY
-        if (self.move_direction[2]):
-            self.y_pos -= PLAYER_VELOCITY
-        if (self.move_direction[3]):
-            self.y_pos += PLAYER_VELOCITY
+        if (self.move_direction[0]): # Move LEFT
+            new_x = self.x_pos - PLAYER_VELOCITY
+            if (new_x >= 0): # Left bound check
+                self.x_pos = new_x
+
+        if (self.move_direction[1]): # Move RIGHT
+            new_x = self.x_pos + PLAYER_VELOCITY
+            if (new_x <= SCREEN_WIDTH - PLAYER_IMG_WIDTH): # Right bound check
+                self.x_pos = new_x
+
+        if (self.move_direction[2]): # Move UP
+            new_y = self.y_pos - PLAYER_VELOCITY
+            if (new_y >= SCREEN_HEIGHT * .75): # Up bound check (limit 3/4 up the screen)
+                self.y_pos = new_y
+
+        if (self.move_direction[3]): # Move DOWN
+            new_y = self.y_pos + PLAYER_VELOCITY
+            if (new_y <= SCREEN_HEIGHT - PLAYER_IMG_HEIGHT): # Down bound check
+                self.y_pos = new_y
 
     # def change_pos(self, x_change, y_change):
     #     self.x_pos += x_change
@@ -81,12 +100,22 @@ def main(screen):
                 if event.key == pygame.K_RIGHT:
                     print("right key down")
                     player.toggle_right()
+                if event.key == pygame.K_UP:
+                    print("up key down")
+                    player.toggle_up()
+                if event.key == pygame.K_DOWN:
+                    print("down key down")
+                    player.toggle_down()
             if event.type == pygame.KEYUP:
                 print("key up")
                 if event.key == pygame.K_LEFT:
                     player.toggle_left()
                 if event.key == pygame.K_RIGHT:
                     player.toggle_right()
+                if event.key == pygame.K_UP:
+                    player.toggle_up()
+                if event.key == pygame.K_DOWN:
+                    player.toggle_down()
 
         if running:
             player.move_player()
