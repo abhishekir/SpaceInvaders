@@ -18,6 +18,7 @@ PLAYER_IMG_HEIGHT = PLAYER_IMG.get_height()
 PLAYER_X_INIT = (SCREEN_WIDTH / 2) - (PLAYER_IMG_WIDTH / 2)  # half on screen x-axis
 PLAYER_Y_INIT = (SCREEN_HEIGHT * .8) + (PLAYER_IMG_HEIGHT / 2)  # 3/4 down on screen y-axis
 PLAYER_VELOCITY = 4 # pixels per tick
+PLAYER_BULLET_INTERVAL = 300 # milliseconds between firing a bullet
 
 ENEMY_IMG_LOC = "media/alien.png"
 ENEMY_IMG = pygame.image.load(ENEMY_IMG_LOC)
@@ -103,8 +104,7 @@ class Enemy:
 
 class Bullet:
     def __init__(self, point):
-        adjusted_x_pos = point.get_x() + (PLAYER_IMG_WIDTH / 2) - (BULLET_IMG_WIDTH / 2)
-        self.pos = Point(adjusted_x_pos, point.get_y())
+        self.pos = Point(point.get_x(), point.get_y())
         self.off_screen = False
 
     def get_pos(self):
@@ -113,13 +113,18 @@ class Bullet:
     def get_off_screen(self):
         return self.off_screen
 
-    def move_bullet(self):
-        new_y = self.get_pos().get_y() - BULLET_VELOCITY
-        # if (new_y >= -BULLET_IMG_HEIGHT*2): # Bullet out of bounds check
-        if (new_y >= 0):
-            self.get_pos().set_y(new_y)
+    # set the boolean determining if a bullet is within the game screen
+    def set_off_screen(self):
+        if (0 <= self.get_pos().get_x() <= SCREEN_WIDTH-BULLET_IMG_WIDTH
+                and 0 <= self.get_pos().get_y() <= SCREEN_HEIGHT-BULLET_IMG_HEIGHT):
+            self.off_screen = False
         else:
             self.off_screen = True
+
+    def move_bullet(self, point):
+        self.get_pos().set_x(point.get_x())
+        self.get_pos().set_y(point.get_y())
+        self.set_off_screen()
 
     def draw(self):
         screen.blit(BULLET_IMG, self.get_pos().get_tuple())
@@ -131,9 +136,51 @@ class Player:
         y_pos = PLAYER_Y_INIT
         self.pos = Point(x_pos, y_pos)
         self.move_direction = [False, False, False, False] # Left, Right, Up, Down
+        self.bullet_list = []
+        self.firing = False
+        self.last_shot_time = 0
 
     def get_pos(self):
         return self.pos
+
+    def get_bullet_list(self):
+        return self.bullet_list
+
+    def get_firing(self):
+        return self.firing
+
+    def add_bullet(self):
+        adjusted_x_pos = self.get_pos().get_x() + (PLAYER_IMG_WIDTH / 2) - (BULLET_IMG_WIDTH / 2)
+        bullet_pos = Point(adjusted_x_pos, self.get_pos().get_y())
+        bullet = Bullet(bullet_pos)
+        self.bullet_list.append(bullet)
+        self.last_shot_time = pygame.time.get_ticks()
+
+    # Manages the player's bullet list
+    # - checks out of bounds bullets and removes them from bullet list
+    # - moves existing bullets
+    # - draws existing bullets
+    # - creates new bullets if firing and if possible
+    def handle_bullets(self):
+        # existing bullet handling
+        for bullet in self.get_bullet_list():
+            if bullet.get_off_screen():
+                self.get_bullet_list().remove(bullet)
+            else:
+                self.move_player_bullet(bullet)
+                bullet.draw()
+        # new bullet handling
+        if (self.get_firing()):
+            current_time = pygame.time.get_ticks()
+            if (current_time - self.last_shot_time > PLAYER_BULLET_INTERVAL):
+                self.add_bullet()
+
+    def move_player_bullet(self, bullet):
+        new_y = bullet.get_pos().get_y() - BULLET_VELOCITY
+        bullet.move_bullet(Point(bullet.get_pos().get_x(), new_y))
+
+    def toggle_firing(self):
+        self.firing = not self.get_firing()
 
     def toggle_left(self):
         self.move_direction[0] = not self.move_direction[0]
@@ -177,12 +224,12 @@ def main(screen):
     running = True
     player = Player()
     enemyList = [Enemy()]
-    bulletList = []
 
     while running:
         # screen.fill(BACKGROUND_COLOR)
         screen.blit(BACKGROUND_IMG, (0, 0))
 
+        # Key Handler
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -203,7 +250,9 @@ def main(screen):
                     player.toggle_down()
                 if event.key == pygame.K_SPACE:
                     # print("space bar down")
-                    bulletList.append(Bullet(player.get_pos()))
+                    # player.add_bullet()
+                    player.toggle_firing()
+
             if event.type == pygame.KEYUP:
                 # print("key up")
                 if event.key == pygame.K_LEFT:
@@ -214,17 +263,16 @@ def main(screen):
                     player.toggle_up()
                 if event.key == pygame.K_DOWN:
                     player.toggle_down()
+                if event.key == pygame.K_SPACE:
+                    # print("space bar down")
+                    # player.add_bullet()
+                    player.toggle_firing()
 
+        # Game Loop Logic Handler
         if running:
             player.move_player()
             player.draw()
-
-            for bullet in bulletList:
-                if bullet.get_off_screen():
-                    bulletList.remove(bullet)
-                else:
-                    bullet.move_bullet()
-                    bullet.draw()
+            player.handle_bullets() # handles managing and drawing player bullets
 
             for enemy in enemyList:
                 enemy.move_enemy()
