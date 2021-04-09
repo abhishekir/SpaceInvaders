@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 # constants
 SCREEN_WIDTH = 800
@@ -66,6 +67,11 @@ class Point:
     def get_tuple(self):
         return (self.x_pos, self.y_pos)
 
+    def point_dist(self, other):
+        other_x = other.get_x()
+        other_y = other.get_y()
+        return math.sqrt((other_x - self.get_x()) ** 2 + (other_y - self.get_y()) ** 2)
+
 
 class Enemy:
     def __init__(self):
@@ -73,12 +79,19 @@ class Enemy:
         y_pos = random.randint(0, int(.2 * SCREEN_HEIGHT))
         self.pos = Point(x_pos, y_pos)
         self.moving_right = random.choice([True, False])
+        self.collision = False
 
     def get_pos(self):
         return self.pos
 
     def toggle_moving_direction(self):
         self.moving_right = not self.moving_right
+
+    def get_collision(self):
+        return self.collision
+
+    def set_collided(self):
+        self.collision = True
 
     def move_enemy(self):
         if (self.moving_right):
@@ -106,12 +119,19 @@ class Bullet:
     def __init__(self, point):
         self.pos = Point(point.get_x(), point.get_y())
         self.off_screen = False
+        self.collision = False
 
     def get_pos(self):
         return self.pos
 
     def get_off_screen(self):
         return self.off_screen
+
+    def get_collision(self):
+        return self.collision
+
+    def set_collided(self):
+        self.collision = True
 
     # set the boolean determining if a bullet is within the game screen
     def set_off_screen(self):
@@ -157,14 +177,17 @@ class Player:
         self.last_shot_time = pygame.time.get_ticks()
 
     # Manages the player's bullet list
-    # - checks out of bounds bullets and removes them from bullet list
-    # - moves existing bullets
-    # - draws existing bullets
-    # - creates new bullets if firing and if possible
+    # - Existing Bullets
+    #   - checks out of bounds bullets and removes them from bullet list
+    #   - checks if collided and removes them from bullet list
+    #   - moves existing bullets
+    #   - draws existing bullets
+    # - New Bullets
+    #   - creates new bullets if firing and if possible
     def handle_bullets(self):
         # existing bullet handling
         for bullet in self.get_bullet_list():
-            if bullet.get_off_screen():
+            if bullet.get_off_screen() or bullet.get_collision():
                 self.get_bullet_list().remove(bullet)
             else:
                 self.move_player_bullet(bullet)
@@ -217,6 +240,27 @@ class Player:
 
     def draw(self):
         screen.blit(PLAYER_IMG, self.get_pos().get_tuple())
+
+
+
+def check_collision(object1, object1_width, object1_height,
+                    object2, object2_width, object2_height):
+    if (object1.get_pos().point_dist(object2.get_pos()) < 100): # initial collision check
+        print("passed initial check")
+        if ((object1.get_pos().get_x() <= object2.get_pos().get_x() + object2_width
+            or object1.get_pos().get_x() + object1_width >= object2.get_pos().get_x())
+            and
+            (object1.get_pos().get_y() <= object2.get_pos().get_y() + object2_height
+            or object1.get_pos().get_y() + object1_height >= object2.get_pos().get_y())):
+            print("Object1 x: %d, y: %d\nObject2 x: %d, y: %d"
+                  % (object1.get_pos().get_x(), object1.get_pos().get_y(),
+                  object2.get_pos().get_x(), object2.get_pos().get_y()))
+
+            object1.set_collided()
+            object2.set_collided()
+            return True
+    else:
+        return False
 
 
 def main(screen):
@@ -275,8 +319,15 @@ def main(screen):
             player.handle_bullets() # handles managing and drawing player bullets
 
             for enemy in enemyList:
-                enemy.move_enemy()
-                enemy.draw()
+                if enemy.get_collision():
+                    enemyList.remove(enemy)
+                else:
+                    enemy.move_enemy()
+                    enemy.draw()
+
+                for bullet in player.get_bullet_list():
+                    check_collision(bullet, BULLET_IMG_WIDTH, BULLET_IMG_HEIGHT,
+                                    enemy, ENEMY_IMG_WIDTH, ENEMY_IMG_HEIGHT)
 
             pygame.display.update()
         else:
