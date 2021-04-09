@@ -245,21 +245,26 @@ class Player:
 
 def check_collision(object1, object1_width, object1_height,
                     object2, object2_width, object2_height):
-    if (object1.get_pos().point_dist(object2.get_pos()) < 100): # initial collision check
-        print("passed initial check")
-        if ((object1.get_pos().get_x() <= object2.get_pos().get_x() + object2_width
-            or object1.get_pos().get_x() + object1_width >= object2.get_pos().get_x())
+    if (object1.get_pos().point_dist(object2.get_pos()) < (object1_height + object2_height)): # initial collision check
+        # print("passed near collision check")
+        if ((object1.get_pos().get_x() < object2.get_pos().get_x() + object2_width
+            and object1.get_pos().get_x() + object1_width > object2.get_pos().get_x())
             and
-            (object1.get_pos().get_y() <= object2.get_pos().get_y() + object2_height
-            or object1.get_pos().get_y() + object1_height >= object2.get_pos().get_y())):
-            print("Object1 x: %d, y: %d\nObject2 x: %d, y: %d"
-                  % (object1.get_pos().get_x(), object1.get_pos().get_y(),
-                  object2.get_pos().get_x(), object2.get_pos().get_y()))
+            (object1.get_pos().get_y() < object2.get_pos().get_y() + object2_height
+            and object1.get_pos().get_y() + object1_height > object2.get_pos().get_y())):
+            # print("passed actual collision check")
+            # print("Object1 x: %d, y: %d\nObject2 x: %d, y: %d"
+            #       % (object1.get_pos().get_x(), object1.get_pos().get_y(),
+            #       object2.get_pos().get_x(), object2.get_pos().get_y()))
 
             object1.set_collided()
             object2.set_collided()
             return True
+        else:
+            # print("failed close check")
+            return False
     else:
+        # print("failed initial check")
         return False
 
 
@@ -325,7 +330,8 @@ def main(screen):
                     enemy.move_enemy()
                     enemy.draw()
 
-                for bullet in player.get_bullet_list():
+            for bullet in player.get_bullet_list():
+                for enemy in enemyList:
                     check_collision(bullet, BULLET_IMG_WIDTH, BULLET_IMG_HEIGHT,
                                     enemy, ENEMY_IMG_WIDTH, ENEMY_IMG_HEIGHT)
 
