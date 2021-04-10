@@ -32,6 +32,11 @@ BULLET_IMG_WIDTH = BULLET_IMG.get_width()
 BULLET_IMG_HEIGHT = BULLET_IMG.get_height()
 BULLET_VELOCITY = 6
 
+SCORE_FONT_SIZE = int(SCREEN_WIDTH * .05)
+SCORE_FONT_COLOR = (255, 255, 255)
+# SCORE_FONT = pygame.font.Font('freesansbold.ttf', SCORE_FONT_SIZE)
+SCORE_TEXT_POS = (int(SCREEN_WIDTH * .0125), int(SCREEN_HEIGHT * .0125))
+
 import point
 import random
 import enemy

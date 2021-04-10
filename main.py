@@ -29,6 +29,9 @@ class Game_Handler:
     def get_enemyList(self):
         return self.enemyList
 
+    def get_score(self):
+        return self.game_score
+
     def main_handler(self):
         self.get_player().move_player()
         # handles managing and drawing player bullets
@@ -40,7 +43,7 @@ class Game_Handler:
 
         # handles setting collided flag for enemies with bullets
         self.collision_handler()
-    
+
     def collision_handler(self):
         for bullet in self.get_player().get_bullet_list():
             for enemy in self.get_enemyList():
@@ -88,6 +91,11 @@ class Game_Handler:
                 new_enemy = enemy.Enemy()
                 self.get_enemyList().append(new_enemy)
                 self.last_enemy_spawn_time = curr_time
+
+    def draw_score(self, screen):
+        font = pygame.font.Font('freesansbold.ttf', SCORE_FONT_SIZE)
+        score_text_render = font.render("Score: " + str(self.get_score()), True, SCORE_FONT_COLOR)
+        screen.blit(score_text_render, SCORE_TEXT_POS)
 
 
 def main(screen):
@@ -140,6 +148,8 @@ def main(screen):
                 bullet.draw(screen)
             for enemy in handler.get_enemyList():
                 enemy.draw(screen)
+
+            handler.draw_score(screen)
 
             pygame.display.update()
         else:
