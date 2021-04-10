@@ -32,8 +32,8 @@ BULLET_IMG_WIDTH = BULLET_IMG.get_width()
 BULLET_IMG_HEIGHT = BULLET_IMG.get_height()
 BULLET_VELOCITY = 6
 
-import random
 import point
+import random
 import bullet
 import player
 import enemy
