@@ -21,6 +21,7 @@ class Game_Handler:
         self.last_enemy_spawn_time = 0
         self.max_enemy_count = 8
         self.enemy_spawn_rate = 3000 # milliseconds between new enemy spawn
+        self.game_score = 0
 
     def get_player(self):
         return self.player
@@ -34,11 +35,17 @@ class Game_Handler:
         self.get_player().handle_bullets()
 
         # handles removing collided enemies
-        # handles moving, drawing existing enemies
+        # handles moving, existing enemies
         self.enemy_handler()
 
         # handles setting collided flag for enemies with bullets
         self.collision_handler()
+    
+    def collision_handler(self):
+        for bullet in self.get_player().get_bullet_list():
+            for enemy in self.get_enemyList():
+                self.check_collision(bullet, BULLET_IMG_WIDTH, BULLET_IMG_HEIGHT,
+                                     enemy, ENEMY_IMG_WIDTH, ENEMY_IMG_HEIGHT)
 
     def check_collision(self, object1, object1_width, object1_height,
                         object2, object2_width, object2_height):
@@ -65,6 +72,15 @@ class Game_Handler:
             # print("failed initial check")
             return False
 
+    def enemy_handler(self):
+        for enemy in self.get_enemyList():
+            if enemy.get_collision():
+                self.game_score += 1
+                self.get_enemyList().remove(enemy)
+            else:
+                enemy.move_enemy()
+        self.add_enemy()
+
     def add_enemy(self):
         if (len(self.get_enemyList()) < self.max_enemy_count):
             curr_time = pygame.time.get_ticks()
@@ -72,20 +88,6 @@ class Game_Handler:
                 new_enemy = enemy.Enemy()
                 self.get_enemyList().append(new_enemy)
                 self.last_enemy_spawn_time = curr_time
-
-    def enemy_handler(self):
-        for enemy in self.get_enemyList():
-            if enemy.get_collision():
-                self.get_enemyList().remove(enemy)
-            else:
-                enemy.move_enemy()
-        self.add_enemy()
-
-    def collision_handler(self):
-        for bullet in self.get_player().get_bullet_list():
-            for enemy in self.get_enemyList():
-                self.check_collision(bullet, BULLET_IMG_WIDTH, BULLET_IMG_HEIGHT,
-                                     enemy, ENEMY_IMG_WIDTH, ENEMY_IMG_HEIGHT)
 
 
 def main(screen):
