@@ -19,7 +19,8 @@ class Game_Handler:
         self.player = player.Player()
         self.enemyList = [enemy.Enemy()]
         self.last_enemy_spawn_time = 0
-        self.enemy_spawn_rate = 100 # milliseconds between new enemy spawn
+        self.max_enemy_count = 8
+        self.enemy_spawn_rate = 3000 # milliseconds between new enemy spawn
 
     def get_player(self):
         return self.player
@@ -64,12 +65,21 @@ class Game_Handler:
             # print("failed initial check")
             return False
 
+    def add_enemy(self):
+        if (len(self.get_enemyList()) < self.max_enemy_count):
+            curr_time = pygame.time.get_ticks()
+            if (curr_time - self.last_enemy_spawn_time > self.enemy_spawn_rate):
+                new_enemy = enemy.Enemy()
+                self.get_enemyList().append(new_enemy)
+                self.last_enemy_spawn_time = curr_time
+
     def enemy_handler(self):
         for enemy in self.get_enemyList():
             if enemy.get_collision():
                 self.get_enemyList().remove(enemy)
             else:
                 enemy.move_enemy()
+        self.add_enemy()
 
     def collision_handler(self):
         for bullet in self.get_player().get_bullet_list():

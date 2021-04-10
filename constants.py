@@ -34,6 +34,6 @@ BULLET_VELOCITY = 6
 
 import point
 import random
+import enemy
 import bullet
 import player
-import enemy
