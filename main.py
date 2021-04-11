@@ -9,7 +9,11 @@ def initialize():
     icon = pygame.image.load(GAME_ICON)
     pygame.display.set_icon(icon)
 
-    return screen
+    # Load, play background music
+    mixer.music.load(BACKGROUND_MUSIC_LOC)
+    mixer.music.play(-1)
+
+    return screen, mixer
 
 
 # manages the repeating logic of the game
@@ -32,14 +36,14 @@ class Game_Handler:
     def get_score(self):
         return self.game_score
 
-    def main_handler(self):
+    def main_handler(self, mixer):
         self.get_player().move_player()
         # handles managing and drawing player bullets
-        self.get_player().handle_bullets()
+        self.get_player().handle_bullets(mixer)
 
         # handles removing collided enemies
         # handles moving, existing enemies
-        self.enemy_handler()
+        self.enemy_handler(mixer)
 
         # handles setting collided flag for enemies with bullets
         self.collision_handler()
@@ -75,10 +79,11 @@ class Game_Handler:
             # print("failed initial check")
             return False
 
-    def enemy_handler(self):
+    def enemy_handler(self, mixer):
         for enemy in self.get_enemyList():
             if enemy.get_collision():
                 self.game_score += 1
+                enemy.death_sound(mixer)
                 self.get_enemyList().remove(enemy)
             else:
                 enemy.move_enemy()
@@ -98,7 +103,7 @@ class Game_Handler:
         screen.blit(score_text_render, SCORE_TEXT_POS)
 
 
-def main(screen):
+def main(screen, mixer):
     # Game Loop
     running = True
     handler = Game_Handler()
@@ -140,7 +145,7 @@ def main(screen):
         # Game in-progress
         if running:
             # Game-loop Logic Handler
-            handler.main_handler()
+            handler.main_handler(mixer)
 
             # Draw everything here
             handler.get_player().draw(screen)
@@ -157,5 +162,7 @@ def main(screen):
 
 
 if __name__ == "__main__":
-    screen = initialize()
-    main(screen)
+    init = initialize()
+    screen = init[0]
+    mixer = init[1]
+    main(screen, mixer)

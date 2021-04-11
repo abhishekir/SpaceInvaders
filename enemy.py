@@ -40,3 +40,7 @@ class Enemy:
 
     def draw(self, screen):
         screen.blit(ENEMY_IMG, self.get_pos().get_tuple())
+
+    def death_sound(self, mixer):
+        death_sound = mixer.Sound(ENEMY_DEATH_SOUND_LOC)
+        death_sound.play()

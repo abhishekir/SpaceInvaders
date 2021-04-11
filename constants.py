@@ -6,6 +6,7 @@ SCREEN_HEIGHT = 600
 BACKGROUND_COLOR = (0, 0, 50)
 BACKGROUND_IMG_LOC = "media/background.png"
 BACKGROUND_IMG = pygame.image.load(BACKGROUND_IMG_LOC)
+BACKGROUND_MUSIC_LOC = "media/background.wav"
 
 GAME_CAPTION = "Space Invaders"
 GAME_ICON = "media/game_icon.png"
@@ -20,6 +21,7 @@ PLAYER_VELOCITY = 4 # pixels per tick
 PLAYER_BULLET_INTERVAL = 300 # milliseconds between firing a bullet
 
 ENEMY_IMG_LOC = "media/alien.png"
+ENEMY_DEATH_SOUND_LOC = "media/explosion.wav"
 ENEMY_IMG = pygame.image.load(ENEMY_IMG_LOC)
 ENEMY_IMG_WIDTH = ENEMY_IMG.get_width()
 ENEMY_IMG_HEIGHT = ENEMY_IMG.get_height()
@@ -27,6 +29,7 @@ ENEMY_X_VELOCITY = 1.25 # pixels per tick
 ENEMY_Y_VELOCITY = .2 # pixels per tick
 
 BULLET_IMG_LOC = "media/bullet.png"
+BULLET_FIRE_SOUND_LOC = "media/laser.wav"
 BULLET_IMG = pygame.image.load(BULLET_IMG_LOC)
 BULLET_IMG_WIDTH = BULLET_IMG.get_width()
 BULLET_IMG_HEIGHT = BULLET_IMG.get_height()
@@ -42,3 +45,4 @@ import random
 import enemy
 import bullet
 import player
+from pygame import mixer

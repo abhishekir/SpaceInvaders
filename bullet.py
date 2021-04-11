@@ -33,3 +33,7 @@ class Bullet:
 
     def draw(self, screen):
         screen.blit(BULLET_IMG, self.get_pos().get_tuple())
+
+    def fire_sound(self, mixer):
+        bullet_sound = mixer.Sound(BULLET_FIRE_SOUND_LOC)
+        bullet_sound.play()

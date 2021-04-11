@@ -19,12 +19,14 @@ class Player:
     def get_firing(self):
         return self.firing
 
-    def add_bullet(self):
+    def add_bullet(self, mixer):
         adjusted_x_pos = self.get_pos().get_x() + (PLAYER_IMG_WIDTH / 2) - (BULLET_IMG_WIDTH / 2)
         bullet_pos = point.Point(adjusted_x_pos, self.get_pos().get_y())
         new_bullet = bullet.Bullet(bullet_pos)
+        new_bullet.fire_sound(mixer)
         self.bullet_list.append(new_bullet)
         self.last_shot_time = pygame.time.get_ticks()
+
 
     # Manages the player's bullet list
     # - Existing Bullets
@@ -33,7 +35,7 @@ class Player:
     #   - moves existing bullets
     # - New Bullets
     #   - creates new bullets if firing and if possible
-    def handle_bullets(self):
+    def handle_bullets(self, mixer):
         # existing bullet handling
         for bullet in self.get_bullet_list():
             if bullet.get_off_screen() or bullet.get_collision():
@@ -44,7 +46,7 @@ class Player:
         if (self.get_firing()):
             current_time = pygame.time.get_ticks()
             if (current_time - self.last_shot_time > PLAYER_BULLET_INTERVAL):
-                self.add_bullet()
+                self.add_bullet(mixer)
 
     def move_player_bullet(self, bullet):
         new_y = bullet.get_pos().get_y() - BULLET_VELOCITY
