@@ -109,6 +109,7 @@ def main(screen, mixer):
     handler = Game_Handler()
 
     while running:
+        GAME_CLOCK.tick(GAME_FPS)
         # screen.fill(BACKGROUND_COLOR)
         screen.blit(BACKGROUND_IMG, (0, 0))
 

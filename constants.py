@@ -3,6 +3,8 @@ import pygame
 # constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+GAME_FPS = 60
+GAME_CLOCK = pygame.time.Clock()
 BACKGROUND_COLOR = (0, 0, 50)
 BACKGROUND_IMG_LOC = "media/background.png"
 BACKGROUND_IMG = pygame.image.load(BACKGROUND_IMG_LOC)
